@@ -310,10 +310,11 @@ int main(int argc, char *argv[]) {
         }
         printf("Usage: ./csv-jsonl input_csv output_jsonl\n");
         printf("Arguments:\n");
-        printf("   input_csv                  The path to the csv to be converted\n");
-        printf("   output_jsonl               The path where the converted jsonl will be created\n");
-        printf("   --buffer-size 1000         (Optional) Bytes per read\n");
-        printf("   --buffer-read-size 1000    (Optional) Read size from outer buffer\n");
+        printf("   input_csv                   The path to the csv to be converted\n");
+        printf("   output_jsonl                The path where the converted jsonl will be created\n");
+        printf("   -n                  \\n     (Optional) Newline escape sequence. Default \\n\n");
+        printf("   --buffer-size       1000    (Optional) Bytes per read\n");
+        printf("   --buffer-read-size  1000    (Optional) Read size from outer buffer\n");
         exit(1);
     }
 
