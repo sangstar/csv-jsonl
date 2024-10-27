@@ -3,8 +3,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+#define HAS_ARG(x) (i + 1 < argc && strcmp(argv[i], x) == 0)
+
 size_t BYTES_PER_BUFFER=1000;
-size_t READ_SIZE=100;
+size_t READ_SIZE=1000;
 size_t NUM_LINES=300;
 
 typedef struct {
@@ -106,7 +108,7 @@ char *add_lines_from_buffer(lines_buffer *line_buf, char *buf, char *newline_seq
 
         // If the slice is a complete row, save it
         if (sliced->has_newline) {
-            line_buf->lines[line_buf->cursor] = (char *)malloc(sizeof(char) * strlen(buf));
+            line_buf->lines[line_buf->cursor] = malloc(sizeof(char) * strlen(buf));
             strcpy(line_buf->lines[line_buf->cursor], sliced->slice);
             line_buf->cursor+=1;
         }
@@ -297,17 +299,27 @@ int main(int argc, char *argv[]) {
     char *input_filename = argv[1];
     char *output_filename = argv[2];
     if (argc < 3) {
-        printf("Error: Missing required arguments.\n\n");
+
+        if (argc < 2) {
+            printf("Error: Invalid arguments.\n\n");
+            exit(1);
+        }
+
+        if ((strcmp(argv[1], "--help") == 1) && (strcmp(argv[1], "-h") == 1)) {
+            printf("Error: Invalid arguments.\n\n");
+        }
         printf("Usage: ./csv-jsonl input_csv output_jsonl\n");
         printf("Arguments:\n");
-        printf("   input_csv         The path to the csv to be converted");
-        printf("   output_jsonl      The path where the converted jsonl will be created");
+        printf("   input_csv                  The path to the csv to be converted\n");
+        printf("   output_jsonl               The path where the converted jsonl will be created\n");
+        printf("   --buffer-size 1000         (Optional) Bytes per read\n");
+        printf("   --buffer-read-size 1000    (Optional) Read size from outer buffer\n");
         exit(1);
     }
 
     char *newline_seq = "\n";
     for (int i = 0; i < argc; ++i) {
-        if (i + 1 < argc && strcmp(argv[i], "-n") == 0) {
+        if HAS_ARG("-n") {
 
             // CLI args are literally parsed string,
             // so it won't automatically identify
@@ -322,6 +334,12 @@ int main(int argc, char *argv[]) {
             } else {
                 newline_seq = argv[i + 1];
             }
+        }
+        if HAS_ARG("--buffer-size") {
+            BYTES_PER_BUFFER = atoi(argv[i + 1]);
+        }
+        if HAS_ARG("--buffer-read-size") {
+            READ_SIZE = atoi(argv[i + 1]);
         }
     }
 
