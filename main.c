@@ -19,6 +19,32 @@ typedef struct {
 } lines_buffer;
 
 
+int is_integer(char *string) {
+    int counter = 0;
+    for (int i = 0; i < strlen(string); ++i) {
+        counter += isnumber(string[i]);
+    }
+    if (counter == strlen(string)) {
+        return 1;
+    }
+    return 0;
+}
+
+int is_float(char *string) {
+    int counter = 0;
+    int has_dot = 0;
+    for (int i = 0; i < strlen(string); ++i) {
+        if (string[i] == '.') {
+            has_dot = 1;
+        }
+        counter += isnumber(string[i]);
+    }
+    if ((counter == strlen(string) - 1) & has_dot) {
+        return 1;
+    }
+    return 0;
+}
+
 // Creates a sliced_buffer from a text buffer `buf`
 // A sliced_buffer is a slice of text that guarantees
 // terminating with a newline
@@ -144,33 +170,10 @@ lines_buffer *file_to_lines_buffer(FILE *file) {
     return lines;
 }
 
-int is_integer(char *string) {
-    int counter = 0;
-    for (int i = 0; i < strlen(string); ++i) {
-        counter += isnumber(string[i]);
-    }
-    if (counter == strlen(string)) {
-        return 1;
-    }
-    return 0;
-}
-
-int is_float(char *string) {
-    int counter = 0;
-    int has_dot = 0;
-    for (int i = 0; i < strlen(string); ++i) {
-        if (string[i] == '.') {
-            has_dot = 1;
-        }
-        counter += isnumber(string[i]);
-    }
-    if ((counter == strlen(string) - 1) & has_dot) {
-        return 1;
-    }
-    return 0;
-}
-
 // Saves a lines_buffer to a jsonl
+// Assumes the only special characters that need
+// escaping are the newline \n and the CSV-escaping of the
+// double quote with the double quote pair ""
 void lines_to_jsonl(lines_buffer *lines, char *outfile) {
 
     // Get number of cols
