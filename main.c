@@ -10,7 +10,7 @@ size_t NUM_LINES=300;
 typedef struct {
     char *slice;
     int cursor;
-    bool has_newline;
+    int has_newline;
 } sliced_buffer;
 
 typedef struct {
@@ -19,12 +19,14 @@ typedef struct {
 } lines_buffer;
 
 
-
+// Creates a sliced_buffer from a text buffer `buf`
+// A sliced_buffer is a slice of text that guarantees
+// terminating with a newline
 sliced_buffer *get_to_newline(char *buf, int cursor){
     sliced_buffer *sliced = (sliced_buffer *)malloc(sizeof(sliced_buffer));
     sliced->slice = (char *)malloc(sizeof(char) * strlen(buf));
     sliced->cursor = 0;
-    sliced->has_newline = false;
+    sliced->has_newline = 0;
 
     // Skip past the previous \r\n
     if (cursor != 0) {
@@ -33,7 +35,7 @@ sliced_buffer *get_to_newline(char *buf, int cursor){
 
     for (int i = cursor; i < strlen(buf); ++i) {
         if (buf[i] == *"\r\n"){
-            sliced->has_newline = true;
+            sliced->has_newline = 1;
             break;
         } else {
 
@@ -54,6 +56,7 @@ sliced_buffer *get_to_newline(char *buf, int cursor){
     return sliced;
 }
 
+// Writes lines of text from a `buf` buffer to a `lines_buffer`
 char *add_lines_from_buffer(lines_buffer *line_buf, char *buf) {
 
     // A separate cursor variable is maintained that keeps track of
@@ -167,7 +170,8 @@ int is_float(char *string) {
     return 0;
 }
 
-void lines_to_csv(lines_buffer *lines, char *outfile) {
+// Saves a lines_buffer to a jsonl
+void lines_to_jsonl(lines_buffer *lines, char *outfile) {
 
     // Get number of cols
     int num_cols = 0;
@@ -298,7 +302,7 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
     lines_buffer *lines = file_to_lines_buffer(file);
-    lines_to_csv(lines, output_filename);
+    lines_to_jsonl(lines, output_filename);
     free(lines);
     return 0;
 }
