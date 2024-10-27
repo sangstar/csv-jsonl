@@ -19,7 +19,7 @@ CLI args can be listed with `--help`:
 Arguments:
    input_csv                   The path to the csv to be converted
    output_jsonl                The path where the converted jsonl will be created
-   -n                  \n     (Optional) Newline escape sequence. Default \n
+   -n                  \n      (Optional) Newline escape sequence. Default \n
    --buffer-size       1000    (Optional) Bytes per read
    --buffer-read-size  1000    (Optional) Read size from outer buffer
 ```
