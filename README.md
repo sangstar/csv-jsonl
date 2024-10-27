@@ -7,8 +7,11 @@ To use, compile the executable:
 gcc -o bin/csv-jsonl main.c
 ```
 
-Then, call the tool from the `/bin` directory with:
+Then, call it with the first positional argument being
+the relative path to your csv file, and the second
+positional argument being the relative path to the
+jsonl file this executable will create:
 
 ```bash
-./csv-jsonl <path-to-csv> <path-to-outputted-jsonl>
+cd bin && ./csv-jsonl <path-to-csv> <path-to-outputted-jsonl>
 ```
