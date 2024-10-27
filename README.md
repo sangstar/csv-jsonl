@@ -7,11 +7,19 @@ To use, compile the executable:
 gcc -o bin/csv-jsonl main.c
 ```
 
-Then, call the executable with the first positional argument being
-the relative path to your csv file, and the second
-positional argument being the relative path to the
-jsonl file this executable will create.
+Then, call the executable:
 
 ```bash
 cd bin && ./csv-jsonl <path-to-csv> <path-to-outputted-jsonl>
+```
+
+CLI args can be listed with `--help`:
+
+```bash
+Arguments:
+   input_csv                   The path to the csv to be converted
+   output_jsonl                The path where the converted jsonl will be created
+   -n                  \n     (Optional) Newline escape sequence. Default \n
+   --buffer-size       1000    (Optional) Bytes per read
+   --buffer-read-size  1000    (Optional) Read size from outer buffer
 ```
