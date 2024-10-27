@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 size_t BYTES_PER_BUFFER=1000;
 size_t READ_SIZE=100;
@@ -140,6 +141,32 @@ lines_buffer *file_to_lines_buffer(FILE *file) {
     return lines;
 }
 
+int is_integer(char *string) {
+    int counter = 0;
+    for (int i = 0; i < strlen(string); ++i) {
+        counter += isnumber(string[i]);
+    }
+    if (counter == strlen(string)) {
+        return 1;
+    }
+    return 0;
+}
+
+int is_float(char *string) {
+    int counter = 0;
+    int has_dot = 0;
+    for (int i = 0; i < strlen(string); ++i) {
+        if (string[i] == '.') {
+            has_dot = 1;
+        }
+        counter += isnumber(string[i]);
+    }
+    if ((counter == strlen(string) - 1) & has_dot) {
+        return 1;
+    }
+    return 0;
+}
+
 void lines_to_csv(lines_buffer *lines) {
 
     // Get number of cols
@@ -192,9 +219,69 @@ void lines_to_csv(lines_buffer *lines) {
         }
     }
 
-    printf("done");
+    // write to jsonl
+    // TODO: Specify outfile name as cli arg
+    FILE *jsonl_file = fopen("/Users/sangersteel/CLionProjects/csv-jsonl/out.jsonl", "w");
+    if (jsonl_file == NULL) {
+        perror("Error opening file");
+        return;
+    }
+
+    // Write line-by-line
+    // Start at 1 because 0 is the column names
+    int inside_outer_quotes = 0;
+    int quotes_encountered = 0;
+    char *col_value = malloc(sizeof(char) * max_col_name_length);
+    for (int row = 1; row < NUM_LINES; ++row) {
+        char *current_line = lines->lines[row];
+        counter = 0;
+        fprintf(jsonl_file, "{");
+        for (int col = 0; col < num_cols; ++col) {
+            char *col_name = cols[col];
+            int col_value_idx = 0;
+            for (int m = 0; m < max_col_name_length; ++m) {
+                int incrementor = m + counter;
+                if (!inside_outer_quotes & current_line[incrementor] == ',') {
+                    counter+= m + 1;
+                    break;
+                }
+
+                if (current_line[incrementor] == '"') {
+                    quotes_encountered++;
+                    if (current_line[incrementor + 1] == '"') {
+                        col_value[col_value_idx++] = '\\';
+                        col_value[col_value_idx++] = '"';
+                        m++;
+                    } else {
+                        inside_outer_quotes = quotes_encountered % 2 != 0;
+                        col_value[col_value_idx++] = current_line[incrementor];
+                    }
+                } else if (current_line[incrementor] == '\n') {
+                    col_value[col_value_idx++] = '\\';
+                    col_value[col_value_idx++] = 'n';                }
+                else {
+                    col_value[col_value_idx++] = current_line[incrementor];
+                }
+            }
+            if (is_integer(col_value)) {
+                fprintf(jsonl_file, "\"%s\": \"%d\",", col_name, atoi(col_value));
+            }
+            else if (is_float(col_value)){
+                fprintf(jsonl_file, "\"%s\": \"%f\",", col_name, atof(col_value));
+
+            } else if (quotes_encountered >= 2){
+                fprintf(jsonl_file, "\"%s\": %s,", col_name, col_value);
+            } else {
+                fprintf(jsonl_file, "\"%s\": \"%s\",", col_name, col_value);
+            }
+            quotes_encountered = 0;
+            memset(col_value, 0, max_col_name_length);
+        }
+        fprintf(jsonl_file, "}\n");
+    }
 }
 
+// TODO: Parse argv program args
 int main(void) {
     FILE *file = fopen("/Users/sangersteel/CLionProjects/csv-jsonl/train.csv", "r");
     lines_buffer *lines = file_to_lines_buffer(file);
