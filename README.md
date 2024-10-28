@@ -1,5 +1,5 @@
 ## `csv-jsonl`
-A lightweight csv to jsonl converter in C. 
+A csv to jsonl converter written in C, in under 360 lines of code.
 
 To use, compile the executable:
 
@@ -7,13 +7,12 @@ To use, compile the executable:
 gcc -o bin/csv-jsonl main.c
 ```
 
-Then, call the executable:
-
+And run it.
 ```bash
 cd bin && ./csv-jsonl <path-to-csv> <path-to-outputted-jsonl>
 ```
 
-CLI args can be listed with `--help`:
+Command line arguments can be listed with `--help`:
 
 ```bash
 Arguments:
